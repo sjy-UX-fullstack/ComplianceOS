@@ -1,20 +1,21 @@
 {
-  "name": "web",
+  "name": "@complianceos/web",
   "version": "0.1.0",
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "next dev --port 3000",
+    "dev": "next dev --port 4321",
     "build": "next build",
     "start": "next start",
     "lint": "eslint --max-warnings 0",
-    "check-types": "next typegen && tsc --noEmit"
+    "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@repo/ui": "workspace:*",
+    "@complianceos/db": "workspace:*",
     "next": "16.2.0",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "zustand": "^5.0.0"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

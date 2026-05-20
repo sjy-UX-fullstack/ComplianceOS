@@ -1,0 +1,29 @@
+{
+  "name": "@complianceos/db",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "generate": "drizzle-kit generate",
+    "migrate": "drizzle-kit migrate",
+    "push": "drizzle-kit push",
+    "studio": "drizzle-kit studio",
+    "seed": "tsx src/seed.ts",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.44.0",
+    "postgres": "^3.4.5"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.0",
+    "tsx": "^4.19.0",
+    "@types/node": "^22.15.3",
+    "typescript": "5.9.2"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts",
+    "./client": "./src/client.ts"
+  }
+}

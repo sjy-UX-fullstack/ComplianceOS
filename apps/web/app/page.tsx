@@ -1,101 +1,118 @@
-import Image, { type ImageProps } from "next/image";
-import { Button } from "@repo/ui/button";
-import styles from "./page.module.css";
+import Link from "next/link";
 
-type Props = Omit<ImageProps, "src"> & {
-  srcLight: string;
-  srcDark: string;
-};
-
-const ThemeImage = (props: Props) => {
-  const { srcLight, srcDark, ...rest } = props;
-
+export default function HomePage() {
   return (
-    <>
-      <Image {...rest} src={srcLight} className="imgLight" />
-      <Image {...rest} src={srcDark} className="imgDark" />
-    </>
-  );
-};
-
-export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <ThemeImage
-          className={styles.logo}
-          srcLight="turborepo-dark.svg"
-          srcDark="turborepo-light.svg"
-          alt="Turborepo logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>apps/web/app/page.tsx</code>
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new/clone?demo-description=Learn+to+implement+a+monorepo+with+a+two+Next.js+sites+that+has+installed+three+local+packages.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4K8ZISWAzJ8X1504ca0zmC%2F0b21a1c6246add355e55816278ef54bc%2FBasic.png&demo-title=Monorepo+with+Turborepo&demo-url=https%3A%2F%2Fexamples-basic-web.vercel.sh%2F&from=templates&project-name=Monorepo+with+Turborepo&repository-name=monorepo-turborepo&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fturborepo%2Ftree%2Fmain%2Fexamples%2Fbasic&root-directory=apps%2Fdocs&skippable-integrations=1&teamSlug=vercel&utm_source=create-turbo"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://turborepo.dev/docs?utm_source"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      {/* Hero */}
+      <header className="glass" style={{
+        padding: "var(--spacing-lg) var(--spacing-xl)",
+        margin: "var(--spacing-md)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-sm)" }}>
+          <div style={{
+            width: 32,
+            height: 32,
+            borderRadius: "var(--radius-md)",
+            background: "linear-gradient(135deg, var(--color-primary), var(--color-accent))",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontWeight: 800,
+            fontSize: "0.875rem",
+            color: "white",
+          }}>
+            C
+          </div>
+          <span style={{ fontWeight: 700, fontSize: "1.125rem" }}>ComplianceOS</span>
         </div>
-        <Button appName="web" className={styles.secondary}>
-          Open alert
-        </Button>
+        <nav style={{ display: "flex", gap: "var(--spacing-lg)", alignItems: "center" }}>
+          <Link href="/app" className="btn btn-primary">Dashboard →</Link>
+        </nav>
+      </header>
+
+      {/* Main Hero Section */}
+      <main className="container animate-fade-in" style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        textAlign: "center",
+        gap: "var(--spacing-xl)",
+        padding: "var(--spacing-2xl) 0",
+      }}>
+        <span className="badge badge-success">🇮🇳 DPDP Act 2023 Ready</span>
+
+        <h1 style={{
+          fontSize: "clamp(2rem, 5vw, 3.5rem)",
+          fontWeight: 800,
+          lineHeight: 1.15,
+          maxWidth: 720,
+          background: "linear-gradient(135deg, var(--color-text), var(--color-primary-light))",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+        }}>
+          The Operating System for
+          <br />DPDP Compliance
+        </h1>
+
+        <p style={{
+          fontSize: "1.125rem",
+          color: "var(--color-text-secondary)",
+          maxWidth: 560,
+          lineHeight: 1.7,
+        }}>
+          Consent management, DSR portal, breach wizard, vendor risk, policy generator — 
+          everything Indian businesses need to comply with the Digital Personal Data Protection Act.
+        </p>
+
+        <div style={{ display: "flex", gap: "var(--spacing-md)", flexWrap: "wrap", justifyContent: "center" }}>
+          <Link href="/app" className="btn btn-primary" style={{ padding: "0.75rem 2rem", fontSize: "1rem" }}>
+            Start Free Assessment
+          </Link>
+          <Link href="#modules" className="btn btn-outline" style={{ padding: "0.75rem 2rem", fontSize: "1rem" }}>
+            Explore Modules
+          </Link>
+        </div>
+
+        {/* Module Cards */}
+        <div id="modules" style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+          gap: "var(--spacing-lg)",
+          width: "100%",
+          maxWidth: 960,
+          marginTop: "var(--spacing-2xl)",
+        }}>
+          {[
+            { icon: "📋", title: "Readiness Assessment", desc: "60-question assessment with gap heatmap and 90-day plan" },
+            { icon: "🍪", title: "Consent Manager", desc: "≤5KB banner SDK, IAB TCF 2.3, Google Consent Mode v2" },
+            { icon: "📝", title: "Policy Generator", desc: "Rule-3 privacy notices in 22 Indian languages with AI drafting" },
+            { icon: "🔔", title: "DSR Portal", desc: "Data principal rights portal with 90-day SLA tracking" },
+            { icon: "🚨", title: "Breach Wizard", desc: "Dual-clock CERT-In 6h + DPB 72h reporting wizard" },
+            { icon: "🏢", title: "Vendor Risk", desc: "DPA generator, risk scoring, SOC 2/ISO 27001 tracker" },
+          ].map((m) => (
+            <div key={m.title} className="card" style={{ textAlign: "left" }}>
+              <div style={{ fontSize: "1.5rem", marginBottom: "var(--spacing-sm)" }}>{m.icon}</div>
+              <h3 style={{ fontWeight: 700, marginBottom: "var(--spacing-xs)" }}>{m.title}</h3>
+              <p style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>{m.desc}</p>
+            </div>
+          ))}
+        </div>
       </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com/templates?search=turborepo&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://turborepo.dev?utm_source=create-turbo"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to turborepo.dev →
-        </a>
+
+      {/* Footer */}
+      <footer style={{
+        padding: "var(--spacing-lg)",
+        textAlign: "center",
+        color: "var(--color-text-secondary)",
+        fontSize: "0.8125rem",
+        borderTop: "1px solid var(--color-border)",
+      }}>
+        <p>© 2026 ComplianceOS · Data residency: AWS Mumbai (ap-south-1) · All personal data stays in India 🇮🇳</p>
       </footer>
     </div>
   );
