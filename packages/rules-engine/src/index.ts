@@ -8,6 +8,142 @@ import { DPDP_RULES, BREACH_TIMERS, DSR_SLA } from "@complianceos/config";
 
 export { DPDP_RULES, BREACH_TIMERS, DSR_SLA };
 
+// ─── Sprint 5: Breach severity scoring ──────────────────────────────────────
+
+export type BreachSeverity = "low" | "medium" | "high" | "critical";
+
+export interface BreachScoreInputs {
+  affectedCount?: number;
+  affectedCategories?: string[];
+  crossBorder?: boolean;
+  publicExposure?: boolean;
+  authBypass?: boolean;
+  childrenData?: boolean;
+}
+
+const SENSITIVE_CATEGORIES = new Set([
+  "aadhaar", "pan", "biometric", "financial", "bank_account", "credit_score",
+  "health", "medical_records", "lab_reports", "minor_data",
+  "geolocation_precise", "sexual_orientation", "caste", "religion", "trade_union",
+]);
+
+function bucketAffected(n?: number): number {
+  if (!n || n <= 0) return 0;
+  if (n < 100) return 1;
+  if (n < 1_000) return 2;
+  if (n < 10_000) return 3;
+  if (n < 100_000) return 4;
+  return 5;
+}
+
+export interface BreachScoreResult {
+  score: number;
+  severity: BreachSeverity;
+  breakdown: { factor: string; weight: number }[];
+}
+
+export function scoreBreach(input: BreachScoreInputs): BreachScoreResult {
+  const breakdown: { factor: string; weight: number }[] = [];
+
+  const affectedWeight = bucketAffected(input.affectedCount);
+  if (affectedWeight) {
+    breakdown.push({
+      factor: `Affected count bucket (${input.affectedCount ?? 0})`,
+      weight: affectedWeight,
+    });
+  }
+
+  const hasSensitive = (input.affectedCategories ?? []).some((c) =>
+    SENSITIVE_CATEGORIES.has(c.toLowerCase().trim()),
+  );
+  if (hasSensitive) breakdown.push({ factor: "Sensitive category exposed", weight: 2 });
+
+  if (input.childrenData) breakdown.push({ factor: "Children's data", weight: 2 });
+  if (input.publicExposure) breakdown.push({ factor: "Publicly exposed", weight: 2 });
+  if (input.crossBorder) breakdown.push({ factor: "Cross-border transfer involved", weight: 1 });
+  if (input.authBypass) breakdown.push({ factor: "Authentication bypass / priv-esc", weight: 1 });
+
+  const score = breakdown.reduce((sum, b) => sum + b.weight, 0);
+  const severity: BreachSeverity =
+    score >= 8 ? "critical" : score >= 6 ? "high" : score >= 4 ? "medium" : "low";
+
+  return { score, severity, breakdown };
+}
+
+// ─── Sprint 5: Sectoral overlay registry ────────────────────────────────────
+
+export interface SectoralOverlay {
+  code: string;
+  regulator: string;
+  description: string;
+  appliesTo: string[]; // industry codes
+  dueOffsetsMs: { name: string; offsetMs: number; channel: string }[];
+}
+
+const HOUR = 60 * 60 * 1000;
+
+export const SECTORAL_OVERLAYS: SectoralOverlay[] = [
+  {
+    code: "rbi_cyber_incident",
+    regulator: "Reserve Bank of India",
+    description:
+      "RBI Master Direction on Cyber Resilience and Digital Payment Security Controls (2024) — incident reporting within 2–6 hours.",
+    appliesTo: ["fintech", "banking", "nbfc", "payment_aggregator"],
+    dueOffsetsMs: [
+      { name: "RBI initial alert", offsetMs: 2 * HOUR, channel: "rbi_csk" },
+      { name: "RBI detailed report", offsetMs: 6 * HOUR, channel: "rbi_csk" },
+    ],
+  },
+  {
+    code: "sebi_cyber_incident",
+    regulator: "Securities and Exchange Board of India",
+    description:
+      "SEBI Cybersecurity & Cyber Resilience Framework — incident reporting within 6 hours.",
+    appliesTo: ["broker", "exchange", "mutual_fund", "fintech"],
+    dueOffsetsMs: [{ name: "SEBI initial report", offsetMs: 6 * HOUR, channel: "sebi_sccoe" }],
+  },
+  {
+    code: "irdai_cyber_incident",
+    regulator: "Insurance Regulatory and Development Authority",
+    description:
+      "IRDAI Information & Cyber Security Guidelines — breach notification within 24 hours.",
+    appliesTo: ["insurance", "insurtech"],
+    dueOffsetsMs: [{ name: "IRDAI initial report", offsetMs: 24 * HOUR, channel: "irdai_iso" }],
+  },
+  {
+    code: "trai_dnd",
+    regulator: "Telecom Regulatory Authority of India",
+    description:
+      "TRAI / DoT — telecom subscriber data breach reporting per TCCCPR.",
+    appliesTo: ["telecom", "isp", "broadcaster"],
+    dueOffsetsMs: [{ name: "TRAI initial report", offsetMs: 6 * HOUR, channel: "trai_dot" }],
+  },
+];
+
+export function overlaysForIndustry(industry: string): SectoralOverlay[] {
+  return SECTORAL_OVERLAYS.filter((o) => o.appliesTo.includes(industry));
+}
+
+export function overlayByCode(code: string): SectoralOverlay | undefined {
+  return SECTORAL_OVERLAYS.find((o) => o.code === code);
+}
+
+export function computeCustomDueAts(
+  detectedAt: Date,
+  overlayCodes: string[],
+): Record<string, string> {
+  const result: Record<string, string> = {};
+  for (const code of overlayCodes) {
+    const o = overlayByCode(code);
+    if (!o) continue;
+    for (const due of o.dueOffsetsMs) {
+      const key = `${code}::${due.name}`;
+      result[key] = new Date(detectedAt.getTime() + due.offsetMs).toISOString();
+    }
+  }
+  return result;
+}
+
 /**
  * Calculate breach report deadlines from detection time.
  */
