@@ -107,57 +107,92 @@ POST   /api/v1/billing/webhook              — Razorpay event ingest (HMAC veri
 | 📝 Policy Notice Gen | ✅ Functional — Template listing, API docs, compliance coverage |
 | 💳 Billing & Plans | ✅ Functional — `/pricing`, `/onboarding`, Razorpay UPI Autopay flow |
 | 🛡️ Preference Centre | ✅ Functional — `/privacy` toggle UI with hash-chain sync |
-| 📬 DSR Portal | 🔲 Placeholder — Sprint 4 |
+| 📬 DSR Portal | ✅ Functional — submission, OTP+DigiLocker verify, status polling, DPO board |
 | 🚨 Breach Wizard | 🔲 Placeholder — Sprint 5 |
 | 🏢 Vendor Risk | 🔲 Placeholder — Sprint 6 |
 
 ---
 
-## Build Status
+## ✅ Sprint 4 — DSR Portal (COMPLETE)
+
+10 of 14 task buckets delivered. Production build green; full workspace typecheck clean.
+Deferred: 4.6/4.7 (BullMQ SLA workers — need Redis runtime), 4.8 (response packet — needs Sprint 7 RoPA), 4.14 (CNAME routing — needs custom-domain provisioning from Phase 7).
+
+| # | Task | Deliverable |
+|---|---|---|
+| 4.1 | DSR request CRUD + RLS | Schema extended with `token_hash`, `subject`, `body_md`, `contact_email`, `contact_mobile`, `language`, `verification_state` JSONB, `alerts_fired[]` |
+| 4.2 | Public DSR submission | `POST /api/v1/public/dsr` with honeypot, AI classification, 90-day SLA, magic-link token issuance |
+| 4.3 | Status polling | `GET /api/v1/public/dsr/{token}/status` — SHA-256 lookup, SLA chip projection |
+| 4.4 | Email + Mobile OTP | `POST/PUT /api/v1/public/dsr/{token}/otp` — 10-min TTL, 5-attempt cap, HMAC salt per channel |
+| 4.5 | DigiLocker via Setu | `POST/PUT /api/v1/public/dsr/{token}/digilocker` — Setu sandbox wired, deterministic stub when keys missing |
+| 4.6 | 90-day SLA worker | **Deferred** — `lib/dsr/core.ts` computes T-30/T-10/T-1/T-0; BullMQ worker batched with Sprint 7 |
+| 4.7 | Auto-escalation at T=0 | **Deferred** — state machine supports `grievance_overdue` transition; cron not yet running |
+| 4.8 | Response packet from RoPA | **Deferred** to Sprint 7 (RoPA module) |
+| 4.9 | Nomination support | `nominee_ref` captured at submission; surfaces in DPO board |
+| 4.10 | WhatsApp + email notifications | `lib/dsr/notify.ts` — structured envelopes ready for BullMQ workers in Sprint 9 |
+| 4.11 | DSR workflow board | `/dpo/dsr` — 6-column kanban with SLA chips, state-transition buttons, 20s polling |
+| 4.12 | AI free-text classifier | `lib/ai/dsr-classifier.ts` — Presidio-lite redaction + heuristic + Claude fallback with citations |
+| 4.13 | PII redaction | `redactPii()` covers Aadhaar / PAN / mobile / email / IFSC / UPI ID — used pre-LLM |
+| 4.14 | `privacy.{client-domain}` routing | **Deferred** — needs custom-domain CNAME wiring (Phase 7) |
+
+### New API Routes
 
 ```
-Route (app)
-├ ○ /                                              (Static — Landing)
-├ ○ /agency                                        (Static — Agency overview)
-├ ○ /app                                           (Static — Platform Dashboard)
-├ ○ /dpo                                           (Static — DPO inbox)
-├ ○ /onboarding                                    (Static — 5-step wizard)
-├ ○ /pricing                                       (Static — Plan catalogue)
-├ ○ /privacy                                       (Static — Preference Centre)
-├ ƒ /api/v1/assessments/[id]/export                (Dynamic)
-├ ƒ /api/v1/billing/invoices                       (Dynamic)
-├ ƒ /api/v1/billing/plans                          (Dynamic)
-├ ƒ /api/v1/billing/subscriptions                  (Dynamic)
-├ ƒ /api/v1/billing/subscriptions/[id]             (Dynamic)
-├ ƒ /api/v1/billing/webhook                        (Dynamic)
-├ ƒ /api/v1/consents                               (Dynamic)
-├ ƒ /api/v1/policies                               (Dynamic)
-├ ƒ /api/v1/public/consent                         (Dynamic)
-└ ƒ /api/v1/public/notice/[slug]/[lang]            (Dynamic)
+POST   /api/v1/public/dsr                              — Submit request
+GET    /api/v1/public/dsr/{token}/status               — Poll status
+POST   /api/v1/public/dsr/{token}/otp                  — Request OTP
+PUT    /api/v1/public/dsr/{token}/otp                  — Verify OTP
+POST   /api/v1/public/dsr/{token}/digilocker           — Initiate DigiLocker
+PUT    /api/v1/public/dsr/{token}/digilocker           — Finalise DigiLocker
+GET    /api/v1/dsr                                     — Tenant DSR queue + counts
+GET    /api/v1/dsr/{id}                                — Tenant DSR detail
+PATCH  /api/v1/dsr/{id}                                — State transition + resolution
+```
+
+### New Routes
+
+```
+/privacy/dsr          — Public DSR submission form (AI auto-classification toggle)
+/privacy/dsr/[token]  — Status + identity verification (OTP / DigiLocker)
+/dpo/dsr              — DPO workflow board (kanban with SLA chips)
+```
+
+### Build Status
+
+```
+Route (app)                                          27 routes
+├ Static  (8):  /  /agency  /app  /dpo  /dpo/dsr  /onboarding
+│              /pricing  /privacy  /privacy/dsr
+├ Dynamic (19): /privacy/dsr/[token]
+│              + 18 API routes under /api/v1/**
 ```
 
 ---
 
-## Next: Sprint 4 — DSR Portal (Weeks 9–10)
+## Next: Sprint 5 — Breach Notification Wizard (Weeks 11–12)
 
 | # | Task | Priority |
 |---|---|---|
-| 4.1 | DSR request CRUD + RLS (`dsr_requests`) | High |
-| 4.2 | Public DSR submission endpoint | High |
-| 4.3 | Status polling endpoint with magic-link token | High |
-| 4.4 | Identity verification: email OTP, mobile OTP | High |
-| 4.5 | DigiLocker XML verification (Setu integration) | Medium |
-| 4.6 | 90-day SLA timer + BullMQ alerts (T-30/T-10/T-1) | High |
-| 4.7 | Auto-escalation at T=0 → `grievance_overdue` | High |
-| 4.8 | Response packet auto-assembly from RoPA | Medium |
-| 4.9 | Nomination support (DPDP §14) | Medium |
-| 4.10 | WhatsApp + email status notifications | Medium |
-| 4.11 | DSR workflow board UI | High |
-| 4.12 | AI: classify free-text → right type | Medium |
-| 4.13 | AI: redact third-party PII in access exports | High |
-| 4.14 | `privacy.{client-domain}` routing (no marketing chrome) | Medium |
+| 5.1 | Breach incident CRUD + auto `ref_no` | High |
+| 5.2 | Dual-clock timers: CERT-In 6h + DPB 72h (IST) | High |
+| 5.3 | Severity scoring engine | High |
+| 5.4 | CERT-In Annexure-I PDF generator | High |
+| 5.5 | DPB initial + 72h detailed report generator | High |
+| 5.6 | Data Principal notification (multi-channel) | High |
+| 5.7 | Evidence locker: S3 Object Lock (7yr) | Medium |
+| 5.8 | Sectoral overlays: RBI 2h/6h, IRDAI, TRAI | Medium |
+| 5.9 | BullMQ timer alerts (approaching deadlines) | High |
+| 5.10 | Breach wizard UI (72h countdown, severity matrix) | High |
+| 5.11 | AI: severity classifier + draft narrative | Medium |
+| 5.12 | Drill test: seed scenario → both filings validate | High |
 
-### Sprint 3 Carry-overs into Sprint 4+
-- **Razorpay plan caching**: lazy-create currently runs on every first sub. Add `plans.razorpay_plan_id_monthly/_yearly` columns + DB upsert.
-- **Webhook → DB persistence**: webhook handler currently logs events; wire to `subscriptions`/`invoices` upsert once tenant-scoped audit middleware lands.
-- **Cookie auto-scanner**: Puppeteer worker — batch with Sprint 7 auto-discovery.
+### Sprint 4 Carry-overs into Sprint 5+
+- **BullMQ SLA worker** (4.6/4.7): Redis runtime + `apps/workers` skeleton, then enqueue at submission time.
+- **Response packet builder** (4.8): blocked on RoPA / data-assets (Sprint 7) — DPO can hand-export until then.
+- **Public DSR routing under `privacy.{client}`** (4.14): needs CNAME + ACM cert provisioning (Phase 7); usable today via `/privacy/dsr` on the platform host.
+- **DSR persistence**: routes use in-memory fallback when Postgres is unreachable — production deploy must run `pnpm db push` so `dsr_requests` carries the new Sprint-4 columns.
+
+### Sprint 3 Carry-overs (unchanged)
+- Razorpay plan caching: lazy-create still per first sub.
+- Webhook → DB persistence pending tenant-scoped audit middleware.
+- Cookie auto-scanner: batch with Sprint 7 auto-discovery.

@@ -99,9 +99,26 @@ export const dsrRequests = pgTable(
     closedAt: timestamp("closed_at", { withTimezone: true }),
     resolution: jsonb("resolution"),
     nomineeRef: text("nominee_ref"),
+
+    // ─── Sprint 4 additions ────────────────────────────────────────────────
+    // SHA-256 hash of the magic-link status token. Plain token never persists.
+    tokenHash: text("token_hash").unique(),
+    // Free-text subject + body (requester's own words)
+    subject: text("subject"),
+    bodyMd: text("body_md"),
+    // Requester contact (used for OTP + WhatsApp + email status updates)
+    contactEmail: text("contact_email"),
+    contactMobile: text("contact_mobile"),
+    language: text("language").default("en"),
+    // Transient identity-verification state (otp hashes, attempts, expiries,
+    // Setu DigiLocker refs). Stored as JSONB to avoid table proliferation.
+    verificationState: jsonb("verification_state"),
+    // SLA alert tracking: which T-N notifications have fired
+    alertsFired: text("alerts_fired").array().default([]),
   },
   (table) => [
     index("idx_dsr_sla").on(table.tenantId, table.status, table.slaDueAt),
+    index("idx_dsr_token").on(table.tokenHash),
   ]
 );
 
