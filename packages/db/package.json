@@ -25,7 +25,8 @@
     ".": "./src/index.ts",
     "./schema": "./src/schema/index.ts",
     "./client": "./src/client.ts",
-    "./questions": "./src/data/questions.ts"
+    "./questions": "./src/data/questions.ts",
+    "./policy-templates": "./src/data/policy-templates.ts"
   }
 
 }

@@ -640,13 +640,186 @@ export default function PlatformDashboard() {
             </div>
           )}
 
-          {/* Fallback for other modules placeholder */}
-          {["policy", "dsr", "breach", "vendor"].includes(activeTab) && (
+
+          {/* TAB 4: POLICY NOTICE GENERATOR */}
+          {activeTab === "policy" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xl)" }}>
+              <div className="card">
+                <h3 style={{ fontWeight: 700, marginBottom: "var(--spacing-xs)" }}>📝 DPDP Policy Notice Generator</h3>
+                <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
+                  Generate Rule 3-compliant privacy notices and cookie policies. Fill in your company details and we'll render a legally sound document ready for publication.
+                </p>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--spacing-xl)", alignItems: "start" }}>
+                {/* Live Preview Links */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)" }}>
+                  <div className="card">
+                    <h4 style={{ fontWeight: 700, marginBottom: "var(--spacing-md)" }}>Available Templates</h4>
+                    
+                    <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-sm)" }}>
+                      {/* Privacy Notice */}
+                      <div style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: "var(--spacing-md)",
+                        background: "rgba(255,255,255,0.02)",
+                        borderRadius: "var(--radius-md)",
+                        border: "1px solid var(--color-border)",
+                      }}>
+                        <div>
+                          <div style={{ fontWeight: 600, fontSize: "0.9375rem" }}>Rule 3 — Privacy Notice</div>
+                          <div style={{ fontSize: "11px", color: "var(--color-text-secondary)" }}>
+                            Covers Section 5, 6, 8, 11-14 · EN + HI
+                          </div>
+                        </div>
+                        <div style={{ display: "flex", gap: "var(--spacing-xs)" }}>
+                          <a
+                            href="/api/v1/public/notice/privacy-notice/en"
+                            target="_blank"
+                            className="btn btn-primary"
+                            style={{ padding: "4px 10px", fontSize: "11px" }}
+                          >
+                            EN
+                          </a>
+                          <a
+                            href="/api/v1/public/notice/privacy-notice/hi"
+                            target="_blank"
+                            className="btn btn-outline"
+                            style={{ padding: "4px 10px", fontSize: "11px" }}
+                          >
+                            HI
+                          </a>
+                        </div>
+                      </div>
+
+                      {/* Cookie Policy */}
+                      <div style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: "var(--spacing-md)",
+                        background: "rgba(255,255,255,0.02)",
+                        borderRadius: "var(--radius-md)",
+                        border: "1px solid var(--color-border)",
+                      }}>
+                        <div>
+                          <div style={{ fontWeight: 600, fontSize: "0.9375rem" }}>Cookie & Tracking Policy</div>
+                          <div style={{ fontSize: "11px", color: "var(--color-text-secondary)" }}>
+                            Covers Rule 3, Rule 6 · GCM v2 + GPC
+                          </div>
+                        </div>
+                        <div>
+                          <a
+                            href="/api/v1/public/notice/cookie-policy/en"
+                            target="_blank"
+                            className="btn btn-primary"
+                            style={{ padding: "4px 10px", fontSize: "11px" }}
+                          >
+                            View
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Template API */}
+                  <div className="card">
+                    <h4 style={{ fontWeight: 700, marginBottom: "var(--spacing-sm)" }}>Template API</h4>
+                    <p style={{ fontSize: "0.8125rem", color: "var(--color-text-secondary)", marginBottom: "var(--spacing-md)" }}>
+                      Use the Policy API to programmatically generate documents:
+                    </p>
+                    <pre style={{
+                      background: "rgba(0,0,0,0.3)",
+                      padding: "var(--spacing-md)",
+                      borderRadius: "var(--radius-sm)",
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "0.7rem",
+                      overflowX: "auto",
+                      color: "var(--color-accent)",
+                      border: "1px solid var(--color-border)",
+                    }}>
+{`# List available templates
+GET /api/v1/policies?lang=en
+
+# Generate a privacy notice
+POST /api/v1/policies/generate
+{
+  "type": "privacy_notice",
+  "language": "en",
+  "format": "html",
+  "variables": {
+    "companyName": "Acme D2C Pvt Ltd",
+    "dpoEmail": "dpo@acme.in",
+    "effectiveDate": "1 Jan 2026",
+    ...
+  }
+}`}
+                    </pre>
+                  </div>
+                </div>
+
+                {/* Status / Info */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-md)" }}>
+                  <div className="card" style={{ textAlign: "center" }}>
+                    <div style={{ fontSize: "2.5rem", marginBottom: "var(--spacing-xs)" }}>📋</div>
+                    <div style={{ fontSize: "0.875rem", color: "var(--color-text-secondary)" }}>Templates Available</div>
+                    <div style={{ fontSize: "3rem", fontWeight: 800, color: "var(--color-primary-light)" }}>3</div>
+                    <div style={{ fontSize: "11px", color: "var(--color-text-secondary)" }}>Privacy Notice (EN + HI) · Cookie Policy</div>
+                  </div>
+
+                  <div className="card">
+                    <h4 style={{ fontWeight: 700, marginBottom: "var(--spacing-sm)" }}>Compliance Coverage</h4>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)" }}>
+                      {[
+                        { rule: "Rule 3", desc: "Privacy Notice Requirements", status: "covered" },
+                        { rule: "Section 5", desc: "Notice at Time of Collection", status: "covered" },
+                        { rule: "Section 6(4)", desc: "Consent Withdrawal Ease", status: "covered" },
+                        { rule: "Rule 6", desc: "Cookie & Tracking Disclosure", status: "covered" },
+                        { rule: "Section 8(6)", desc: "Breach Notification Info", status: "covered" },
+                        { rule: "Section 9", desc: "Children's Data Policy", status: "covered" },
+                        { rule: "Section 16", desc: "Cross-Border Transfer Info", status: "covered" },
+                      ].map((item) => (
+                        <div key={item.rule} style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          padding: "var(--spacing-xs) var(--spacing-sm)",
+                          fontSize: "0.8125rem",
+                        }}>
+                          <div>
+                            <strong style={{ color: "var(--color-primary-light)" }}>{item.rule}</strong>{" "}
+                            <span style={{ color: "var(--color-text-secondary)" }}>— {item.desc}</span>
+                          </div>
+                          <span className="badge badge-success" style={{ fontSize: "10px" }}>✓</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="card">
+                    <h4 style={{ fontWeight: 700, marginBottom: "var(--spacing-sm)" }}>Coming Soon — Sprint 2+</h4>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)", fontSize: "0.8125rem", color: "var(--color-text-secondary)" }}>
+                      <div>🤖 AI Policy Generator (Claude RAG over DPDP Act)</div>
+                      <div>🔒 Presidio PII Redaction (Aadhaar/PAN/UPI)</div>
+                      <div>📊 Version Control + Diff View</div>
+                      <div>🌐 Bhashini API — 22 Language Translation</div>
+                      <div>🎨 Theme Builder (CSS vars, logo, palette)</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Fallback for remaining modules placeholder */}
+          {["dsr", "breach", "vendor"].includes(activeTab) && (
             <div className="card" style={{ textAlign: "center", padding: "var(--spacing-2xl) 0" }}>
               <div style={{ fontSize: "2.5rem", marginBottom: "var(--spacing-sm)" }}>🛠️</div>
               <h3 style={{ fontWeight: 700, marginBottom: "var(--spacing-xs)" }}>Module under development</h3>
               <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem" }}>
-                This module is scheduled for development in a future sprint. Refer to the <Link href="/sprint_0_status.md" style={{ color: "var(--color-primary-light)" }}>Master Plan</Link>.
+                This module is scheduled for development in a future sprint. Refer to the <Link href="/" style={{ color: "var(--color-primary-light)" }}>Master Plan</Link>.
               </p>
             </div>
           )}
