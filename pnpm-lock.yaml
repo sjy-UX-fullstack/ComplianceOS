@@ -20,9 +20,18 @@ importers:
 
   apps/web:
     dependencies:
+      '@complianceos/config':
+        specifier: workspace:*
+        version: link:../../packages/config
       '@complianceos/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@complianceos/rules-engine':
+        specifier: workspace:*
+        version: link:../../packages/rules-engine
+      drizzle-orm:
+        specifier: ^0.44.0
+        version: 0.44.7(postgres@3.4.9)
       next:
         specifier: 16.2.0
         version: 16.2.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -120,7 +129,11 @@ importers:
 
   packages/policy-templates: {}
 
-  packages/rules-engine: {}
+  packages/rules-engine:
+    dependencies:
+      '@complianceos/config':
+        specifier: workspace:*
+        version: link:../config
 
   packages/typescript-config: {}
 

@@ -14,7 +14,10 @@ import {
   rolePermissions,
   memberships,
   plans,
+  assessmentQuestions,
 } from "./schema/index";
+import { QUESTIONS_SEED } from "./data/questions";
+
 
 const SYSTEM_ROLES = [
   "platform_admin",
@@ -282,7 +285,25 @@ async function seed() {
     }
   }
 
+  // 7. Assessment Questions
+  console.log("  → Seeding assessment questions...");
+  for (const q of QUESTIONS_SEED) {
+    await db
+      .insert(assessmentQuestions)
+      .values({
+        code: q.code,
+        category: q.category,
+        questionText: q.questionText,
+        description: q.description,
+        options: q.options,
+        ruleRefs: q.ruleRefs,
+        industryOverlays: q.industryOverlays,
+      })
+      .onConflictDoNothing();
+  }
+
   console.log("\n✅ Seed complete!");
+
   console.log(`   Platform Admin: admin@complianceos.in`);
   console.log(`   Agency: DataShield Consulting (datashield)`);
   console.log(`   Tenant A: Acme D2C Pvt Ltd (acme-d2c) — Growth plan`);

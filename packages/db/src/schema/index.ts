@@ -9,3 +9,5 @@ export * from "./audit";
 export * from "./consent";
 export * from "./compliance";
 export * from "./business";
+export * from "./assessments";
+
