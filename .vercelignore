@@ -1,0 +1,19 @@
+# Exclude heavy folders from Vercel source upload
+node_modules
+.next
+out
+dist
+.git
+.turbo
+.claude
+.pnpm-store
+.vercel
+
+# Package-specific ignores
+apps/web/node_modules
+apps/web/.next
+apps/web/out
+packages/*/node_modules
+packages/*/dist
+packages/*/out
+packages/*/.turbo

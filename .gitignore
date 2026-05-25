@@ -35,3 +35,4 @@ npm-debug.log*
 coverage/
 .env.local
 .env
+.vercel
