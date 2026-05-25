@@ -12,14 +12,14 @@ import * as React from "react";
  */
 export default function PlatformLayout({ children }: { children: React.ReactNode }) {
   const navItems = [
-    { href: "/app", label: "Dashboard", icon: "📊", available: true },
+    { href: "/app#overview", label: "Dashboard", icon: "📊", available: true },
     { href: "/onboarding", label: "Onboarding", icon: "✨", available: true },
     { href: "/app#assessment", label: "Assessment", icon: "📋", available: true, sprint: 1 },
     { href: "/app#consent", label: "Consent Manager", icon: "🍪", available: true, sprint: 1 },
     { href: "/app#policy", label: "Policy & Notices", icon: "📝", available: true, sprint: 2 },
-    { href: "/app#dsr", label: "DSR Portal", icon: "📬", available: false, sprint: 4 },
-    { href: "/app#breach", label: "Breach Wizard", icon: "🚨", available: false, sprint: 5 },
-    { href: "/app#vendor", label: "Vendor Risk", icon: "🏢", available: false, sprint: 6 },
+    { href: "/app#dsr", label: "DSR Portal", icon: "📬", available: true, sprint: 4 },
+    { href: "/app#breach", label: "Breach Wizard", icon: "🚨", available: true, sprint: 5 },
+    { href: "/app#vendor", label: "Vendor Risk", icon: "🏢", available: true, sprint: 6 },
     { href: "/app#ropa", label: "RoPA", icon: "🗂️", available: false, sprint: 7 },
     { href: "/app#lms", label: "Training", icon: "🎓", available: false, sprint: 8 },
   ];
